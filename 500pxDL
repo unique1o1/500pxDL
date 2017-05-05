@@ -1,0 +1,121 @@
+#!/usr/bin/env python3.5
+import urllib.request
+#import urllib.parse
+from tkinter import *
+from tkinter import ttk, filedialog, messagebox
+#from getweather import *
+
+import requests
+
+
+
+
+import re
+
+class gui():
+    def __init__(self, master,u):
+        entry= StringVar()
+        self.master=master
+        self.number=u
+        master.title('Save Instagram Photos')
+        master.resizable(True, True)
+        self.frames=ttk.Frame(self.master)
+        self.frames.grid(pady = 5)
+        self.logo=PhotoImage(file ='500px.png')
+        self.small_logo= self.logo.subsample(2,2)
+       
+        ttk.Label(self.frames, image=self.small_logo).grid(row=0,column=0)
+
+        self.input=ttk.Entry(self.master, width=40)
+        self.input.grid(row=1,column=0,sticky='w')
+
+        self.where=ttk.Entry(self.master, width=30)
+
+        self.where.insert(0, '/home/')
+
+        self.where.grid(row=1,column=3,sticky='w')
+
+
+
+        self.browse=ttk.Button(self.master, text="WhereTo", command=self.browse_callback)
+        self.browse.grid(row=1, column=4,columnspan = 2)
+
+
+        self.button=ttk.Button(self.master, text="Save Image", command=self.send)
+        self.button.grid(row=1, column=1,columnspan = 1,sticky='w')
+        
+    
+    def browse_callback(self):
+        self.path = filedialog.askdirectory(initialdir = self.where.get())
+        self.where.delete(0, END)
+        self.where.insert(0, self.path)
+
+
+    def send(self):
+
+        self.value=self.input.get()
+        self.insta = instagram(self.value)
+        self.image_url=self.insta.compare()
+        self.input.delete(0, 'end')
+        # self.number+=1
+        # self.no=str(self.number)
+        self.nameofimg=re.search('https://drscdn.500px.org/photo/', self.image_url)
+        self.ends=self.nameofimg.end()
+        self.namess=self.image_url[self.ends:]
+        self.nameofimg=re.search('/', self.namess)
+        self.ends=self.nameofimg.start()
+        self.namess=self.namess[0:self.ends]
+        self.location =self.where.get()+'/'+self.namess+'.jpg'
+        print(self.namess)
+        try:
+            urllib.request.urlretrieve(self.image_url, self.location)
+            self.success=1
+        except ValueError as e:
+            self.success=0
+            messagebox.showerror(title = 'IOError',
+                                 message = ('can\'t save the image'))
+            return
+
+        if self.success==1:
+            print('success')
+            self.label=ttk.Label(self.master, text='Success')
+            
+            self.label.config(wraplength=90, justify = LEFT, background='green',font = (8))
+            self.label.grid(row=3, column=0)
+            self.success = 0
+
+class instagram(gui):
+    def __init__(self,insta_url):
+       
+        datas = urllib.request.urlopen(insta_url).read()
+        data = datas.decode('utf-8')
+        
+              
+       
+        self.starting_text = re.search('https://drscdn.500px.org/photo', data)
+        self.start = self.starting_text.start()
+            #     self.start+=k
+            #     self.start
+        self.last_data= data[self.start:]
+        self.ending_text = re.search('\'',self.last_data)
+
+        self.end = self.ending_text.end()
+            
+
+        self.myimage=self.last_data[0:self.end-1]
+        print(self.myimage)
+
+
+    def compare(self):
+        return self.myimage
+        
+        
+
+def main():
+  
+    root=Tk()
+
+    grap=gui(root,0)
+    root.mainloop()
+
+if __name__=="__main__":main()
