@@ -31,13 +31,13 @@ class gui():
 
         self.where=ttk.Entry(self.master, width=30)
 
-        self.where.insert(0, '/home/')
+        self.where.insert(0, '/home')
 
         self.where.grid(row=1,column=3,sticky='w')
 
 
 
-        self.browse=ttk.Button(self.master, text="WhereTo", command=self.browse_callback)
+        self.browse=ttk.Bhttps://500px.com/photo/210674019/bald-eagle-by-milan-zygmuntutton(self.master, text="WhereTo", command=self.browse_callback)
         self.browse.grid(row=1, column=4,columnspan = 2)
 
 
